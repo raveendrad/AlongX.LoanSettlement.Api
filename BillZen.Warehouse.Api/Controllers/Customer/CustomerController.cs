@@ -1,3 +1,4 @@
+﻿
 ﻿using BillZen.Warehouse.Api.DAL.Customer;
 using BillZen.Warehouse.Api.Models.Customer;
 using System;
@@ -13,9 +14,9 @@ namespace BillZen.Warehouse.Api.Controllers
     public class CustomerController : ApiController
     {
         [HttpGet]
-        public IList<CustomerModel> Get(long customer_id)
+        public IList<CustomerModel> Get(long customer_id = 0, string mobile_number = "")
         {
-            return new Customer().GetAllCustomers(customer_id);
+            return new Customer().GetAllCustomers(customer_id, mobile_number);
         }
 
         [HttpPost]

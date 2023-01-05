@@ -1,4 +1,5 @@
-﻿using BillZen.Warehouse.Api.Models.LoanInfo;
+﻿using BillZen.Warehouse.Api.Models.Customer;
+using BillZen.Warehouse.Api.Models.LoanInfo;
 using BillZen.Warehouse.Api.Models.LoanInformation;
 using System;
 using System.Collections.Generic;
@@ -117,7 +118,7 @@ namespace BillZen.Warehouse.Api.DAL.LoanInformation
                     datatype = SqlDbType.Decimal,
                     value = Request.total_outstanding_amount.ToString()
                   },
-                    
+
                   new SqlStoreProcedureEntity()
                   {
                     name = "loan_document",
@@ -160,6 +161,43 @@ namespace BillZen.Warehouse.Api.DAL.LoanInformation
             }
             return response;
         }
+
+        public DBResponse UpdateLoanPayement(LoanInformationModel Request)
+        {
+            DBResponse response = new DBResponse();
+            try
+            {
+                //string salesproduct_json = JsonConvert.SerializeObject(Request.salesproduct);
+                DataTable dataTable = new SqlQuery().Execute("usp_updateLoanInfo", new List<SqlStoreProcedureEntity>()
+                {
+                    new SqlStoreProcedureEntity()
+                  {
+                    name = "loan_information_id",
+                    datatype = SqlDbType.BigInt,
+                    value = Request.loan_information_id.ToString()
+                  },
+
+                   new SqlStoreProcedureEntity()
+                  {
+                    name = "resolve_status",
+                    datatype = SqlDbType.NVarChar,
+                    value = Request.resolve_status
+                  }
+                });
+                response.status = Convert.ToBoolean(dataTable.Rows[0][0]);
+                response.message = dataTable.Rows[0][1].ToString();
+                //response.indentno = Convert.ToInt64(dataTable.Rows[0][2]);
+            }
+            catch (Exception ex)
+            {
+                response.status = false;
+                response.message = ex.Message.ToString();
+            }
+            return response;
+        }
+
+
+
 
     }
 }

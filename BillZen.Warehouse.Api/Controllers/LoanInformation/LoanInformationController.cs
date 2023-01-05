@@ -14,18 +14,18 @@ using System.Net.Http;
 using System.Web.Http;
 
 namespace BillZen.Warehouse.Api.Controllers
-{ 
+{
     public class LoanInformationController : ApiController
     {
 
         [HttpGet]
         public LoanCalcModel Get(long loan_information_id = 0)
         {
-            LoanInformationModel loanInformation= new LoanInformationModel();
-            decimal totalCharges, relfLowrEnd =0, unsecured=0,digitalLender=0,loanDuration=0,DelayinDays,relfHigher=0,subscriptionfee=0, total_payable_inclde=0;
-           
+            LoanInformationModel loanInformation = new LoanInformationModel();
+            decimal totalCharges, relfLowrEnd = 0, unsecured = 0, digitalLender = 0, loanDuration = 0, DelayinDays, relfHigher = 0, subscriptionfee = 0, total_payable_inclde = 0;
 
-           IList<LoanInformationModel> loanInformationList = new List<LoanInformationModel>();
+
+            IList<LoanInformationModel> loanInformationList = new List<LoanInformationModel>();
 
             try
             {
@@ -68,12 +68,12 @@ namespace BillZen.Warehouse.Api.Controllers
                                    }).FirstOrDefault();
                 var sumcharges = loanInformation.processing_fee + Convert.ToDecimal(loanInformation.interest) + loanInformation.Insurance_amount + loanInformation.other_charges;
 
-              totalCharges =  sumcharges  / loanInformation.total_outstanding_amount * 100;
+                totalCharges = sumcharges / loanInformation.total_outstanding_amount * 100;
 
-                 if(loanInformation.lender_type == "Digital")
+                if (loanInformation.lender_type == "Digital/Online")
                 {
                     relfLowrEnd = totalCharges * 75 / 100;
-                    
+
                 }
                 else
                 {
@@ -83,7 +83,7 @@ namespace BillZen.Warehouse.Api.Controllers
                 if (loanInformation.loan_type == "Unsecured")
                 {
 
-                    unsecured =  loanInformation.total_outstanding_amount*5/100;
+                    unsecured = loanInformation.total_outstanding_amount * 5 / 100;
 
                 }
                 else
@@ -91,9 +91,9 @@ namespace BillZen.Warehouse.Api.Controllers
                     unsecured = 0;
                 }
 
-                if (loanInformation.lender_type == "Digital")
+                if (loanInformation.lender_type == "Digital/Online")
                 {
-                    digitalLender = loanInformation.total_outstanding_amount*10/100;
+                    digitalLender = loanInformation.total_outstanding_amount * 10 / 100;
 
                 }
                 else
@@ -101,7 +101,7 @@ namespace BillZen.Warehouse.Api.Controllers
                     digitalLender = 0;
                 }
 
-                if (loanInformation.loan_tenure == "<Month"||loanInformation.loan_tenure=="Month")
+                if (loanInformation.loan_tenure == "<Month" || loanInformation.loan_tenure == "Month")
                 {
                     loanDuration = loanInformation.total_outstanding_amount * 10 / 100;
 
@@ -111,14 +111,13 @@ namespace BillZen.Warehouse.Api.Controllers
                     loanDuration = 0;
                 }
 
-                if (Convert.ToInt32(loanInformation.loan_delay) < 90)
+                if (loanInformation.loan_delay == "91 to 180 days" || loanInformation.loan_delay == "More than 180 days")
                 {
-                    DelayinDays = loanInformation.total_outstanding_amount * 5/100;
-
+                    DelayinDays = loanInformation.total_outstanding_amount * 5 / 100;
                 }
                 else
                 {
-                    DelayinDays = 0 ;
+                    DelayinDays = 0;
                 }
 
                 //Subscription payement calculation
@@ -160,14 +159,14 @@ namespace BillZen.Warehouse.Api.Controllers
                 {
                     subscriptionfee = 999;
                 }
-                 total_payable_inclde = loanInformation.total_outstanding_amount + subscriptionfee;
+                total_payable_inclde = loanInformation.total_outstanding_amount + subscriptionfee;
 
-                relfHigher = relfLowrEnd+unsecured+digitalLender+loanDuration+DelayinDays;
+                relfHigher = relfLowrEnd + unsecured + digitalLender + loanDuration + DelayinDays;
                 var relHigherEnd = relfHigher / 100;
                 LoanCalcModel loanCalcModel = new LoanCalcModel();
-                loanCalcModel.relfLowrEnd =decimal.Round(relfLowrEnd).ToString();
+                loanCalcModel.relfLowrEnd = decimal.Round(relfLowrEnd).ToString();
                 loanCalcModel.relHigherEnd = decimal.Round(relHigherEnd).ToString();
-                loanCalcModel.subscriptionfee=decimal.Round(subscriptionfee).ToString();
+                loanCalcModel.subscriptionfee = subscriptionfee.ToString();
                 loanCalcModel.total_payable_inclde = decimal.Round(total_payable_inclde).ToString();
 
                 return loanCalcModel;
@@ -180,7 +179,7 @@ namespace BillZen.Warehouse.Api.Controllers
 
         }
 
-       
+
 
         [HttpPost]
         public DBResponse Post([FromBody] LoanInformationModel _model)
@@ -200,5 +199,16 @@ namespace BillZen.Warehouse.Api.Controllers
             }
         }
 
+        [HttpPut]
+        public DBResponse Put([FromBody] LoanInformationModel _model)
+        {
+            DBResponse response = new DBResponse();
+            {
+                LoanInformation request = new LoanInformation();
+                response = request.UpdateLoanPayement(_model);
+            }
+
+            return response;
+        }
     }
 }

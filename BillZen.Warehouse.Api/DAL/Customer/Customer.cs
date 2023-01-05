@@ -11,7 +11,7 @@ namespace BillZen.Warehouse.Api.DAL.Customer
 {
     public class Customer
     {
-        public IList<CustomerModel> GetAllCustomers(long customer_id)
+        public IList<CustomerModel> GetAllCustomers(long customer_id, string mobile_number)
         {
             try
             {
@@ -22,30 +22,36 @@ namespace BillZen.Warehouse.Api.DAL.Customer
                         name = "customer_id",
                         datatype = SqlDbType.BigInt,
                         value = customer_id.ToString()
+                    },
+                      new SqlStoreProcedureEntity()
+                    {
+                        name = "mobile_number",
+                        datatype = SqlDbType.NVarChar,
+                        value = mobile_number
                     }
                 });
 
-                    return (IList<CustomerModel>)dataTable.AsEnumerable().Select<DataRow, CustomerModel>((Func<DataRow, CustomerModel>)(row => new CustomerModel()
-                    {
-                        customer_id = row.Field<long>("customer_id"),
-                        name = row.Field<string>("name"),
-                        email = row.Field<string>("email"),
-                        mobile_number = row.Field<string>("mobile_number"),
-                        alternate_mobile_number = row.Field<string>("alternate_mobile_number"),
-                        full_address = row.Field<string>("full_address"),
-                        city = row.Field<string>("city"),
-                        state = row.Field<string>("state"),
-                        pincode = row.Field<string>("pincode"),
-                        occupation = row.Field<string>("occupation"),
-                        your_earning_per_month = row.Field<decimal>("your_earning_per_month"),
-                        gender = row.Field<string>("gender"),
-                        date_of_birth = row.Field<DateTime>("date_of_birth").ToLongDateString(),
-                        date_of_registration = row.Field<DateTime>("date_of_registration").ToLongDateString(),
-                        password = row.Field<string>("password"),
-                        pan_card = row.Field<string>("pan_card"),
-                        adhaar_card = row.Field<string>("adhaar_card")
+                return (IList<CustomerModel>)dataTable.AsEnumerable().Select<DataRow, CustomerModel>((Func<DataRow, CustomerModel>)(row => new CustomerModel()
+                {
+                    customer_id = row.Field<long>("customer_id"),
+                    name = row.Field<string>("name"),
+                    email = row.Field<string>("email"),
+                    mobile_number = row.Field<string>("mobile_number"),
+                    alternate_mobile_number = row.Field<string>("alternate_mobile_number"),
+                    full_address = row.Field<string>("full_address"),
+                    city = row.Field<string>("city"),
+                    state = row.Field<string>("state"),
+                    pincode = row.Field<string>("pincode"),
+                    occupation = row.Field<string>("occupation"),
+                    your_earning_per_month = row.Field<decimal>("your_earning_per_month"),
+                    gender = row.Field<string>("gender"),
+                    date_of_birth = row.Field<DateTime>("date_of_birth").ToLongDateString(),
+                    date_of_registration = row.Field<DateTime>("date_of_registration").ToLongDateString(),
+                    password = row.Field<string>("password"),
+                    pan_card = row.Field<string>("pan_card"),
+                    adhaar_card = row.Field<string>("adhaar_card")
 
-                    })).ToList<CustomerModel>();
+                })).ToList<CustomerModel>();
 
             }
             catch (Exception ex)
@@ -58,7 +64,7 @@ namespace BillZen.Warehouse.Api.DAL.Customer
         {
             DBResponse response = new DBResponse();
             try
-                {
+            {
                 string randomPassword = GetRandomPassword(10);
                 DataTable dataTable = new SqlQuery().Execute("usp_saveCustomer", new List<SqlStoreProcedureEntity>()
                 {
@@ -246,30 +252,30 @@ namespace BillZen.Warehouse.Api.DAL.Customer
                     datatype = SqlDbType.BigInt,
                     value = Request.customer_id.ToString()
                   },
-                
+
                   new SqlStoreProcedureEntity()
                   {
-                    name = "alternate_mobile_number",
+                    name = "name",
                     datatype = SqlDbType.NVarChar,
-                    value = Request.alternate_mobile_number
+                    value = Request.name
                   },
                   new SqlStoreProcedureEntity()
+                  {
+                    name = "email",
+                    datatype = SqlDbType.NVarChar,
+                    value = Request.email
+                  },
+                  new SqlStoreProcedureEntity()
+                  {
+                    name = "your_earning_per_month",
+                    datatype = SqlDbType.Decimal,
+                    value = Request.your_earning_per_month.ToString()
+                  },
+                    new SqlStoreProcedureEntity()
                   {
                     name = "full_address",
                     datatype = SqlDbType.NVarChar,
                     value = Request.full_address
-                  },
-                   new SqlStoreProcedureEntity()
-                  {
-                    name = "city",
-                    datatype = SqlDbType.NVarChar,
-                    value = Request.city
-                  },
-                    new SqlStoreProcedureEntity()
-                  {
-                    name = "state",
-                    datatype = SqlDbType.NVarChar,
-                    value = Request.state
                   },
                      new SqlStoreProcedureEntity()
                   {
@@ -279,40 +285,29 @@ namespace BillZen.Warehouse.Api.DAL.Customer
                   },
                       new SqlStoreProcedureEntity()
                   {
-                    name = "occupation",
+                    name = "city",
                     datatype = SqlDbType.NVarChar,
-                    value = Request.occupation
+                    value = Request.city
                   },
 
-                     new SqlStoreProcedureEntity()
-                  {
-                    name = "your_earning_per_month",
-                    datatype = SqlDbType.Decimal,
-                    value = Request.your_earning_per_month.ToString()
-                  },
                        new SqlStoreProcedureEntity()
                   {
-                    name = "gender",
+                    name = "state",
                     datatype = SqlDbType.NVarChar,
-                    value = Request.gender
+                    value = Request.state
                   },
-                        new SqlStoreProcedureEntity()
+
+                   new SqlStoreProcedureEntity()
                   {
-                    name = "date_of_birth",
-                    datatype = SqlDbType.Date,
-                   value = Request.date_of_birth.ToString()
+                    name = "adhaar_card",
+                    datatype = SqlDbType.NVarChar,
+                    value = Request.adhaar_card
                   },
                    new SqlStoreProcedureEntity()
                   {
                     name = "pan_card",
                     datatype = SqlDbType.NVarChar,
                     value = Request.pan_card
-                  },
-                   new SqlStoreProcedureEntity()
-                  {
-                    name = "adhaar_card",
-                    datatype = SqlDbType.NVarChar,
-                    value = Request.adhaar_card
                   }
                 });
                 response.status = Convert.ToBoolean(dataTable.Rows[0][0]);
